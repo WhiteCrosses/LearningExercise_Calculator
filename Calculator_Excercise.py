@@ -40,14 +40,14 @@ def myeval1(s):
         return eval(s)
     except ZeroDivisionError:
         zero_error()
-        return 0
+        return 'invalid_operation'
 
 def myeval2(w, p):
     try:
         return eval(str(p) + w)
     except ZeroDivisionError:
         zero_error()
-        return 0
+        return 'invalid_operation'
 
 def help_panel():
     global position_C
