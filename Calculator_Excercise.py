@@ -31,18 +31,27 @@ path11 = "\nYou can use plus/minus as the word in your formula :D\n" \
 #linking dictionary to array-type-thigy
 array = np.array(([path10, 0, 0],
          [path110, path20, path11],
-         [path210, path120]), dtype='object')
+         [path210, path120], path111), dtype='object')
+
+def zero_error():
+    print("Dont divide by 0!")
 
 def myeval1(s):
     try:
         return eval(s)
     except SyntaxError:
         return 0
+    except ZeroDivisionError:
+        zero_error()
+        return 0
 
 def myeval2(w, p):
     try:
         return eval(str(p) + w)
     except SyntaxError:
+        return 0
+    except ZeroDivisionError:
+        zero_error()
         return 0
 
 def help_panel():
@@ -52,8 +61,14 @@ def help_panel():
     print("\n**************************************************************")
     print(array[position_R][position_C])
     print("**************************************************************")
+
     if position_R == 2:
         kalkulacje()
+    elif position_R == 1 and position_C == 1:
+        kalkulacje()
+    elif position_R == 1 and position_C == 2:
+        kalkulacje()
+
     path_selector()
 
 def path_selector():
@@ -64,6 +79,7 @@ def path_selector():
     while not finished:
         with keyboard.Events() as events:
             event = events.get(1e6)
+
 
             if event.key == keyboard.KeyCode.from_char('1'):
                 finished = True
@@ -103,10 +119,6 @@ def kalkulacje():
 
     if UserIn == 'quit':
         running = False
-
-    elif UserIn == '/0':
-        print("No No No")
-        kalkulacje()
 
     elif UserIn == 'Iba':
         print("                     , \n"
@@ -155,10 +167,8 @@ def kalkulacje():
 
         #calculations
         if previous == 0:
-            myeval1(UserIn)
             previous = (myeval1(UserIn))
         else:
-            myeval2(UserIn, previous)
             previous = (myeval2(UserIn, previous))
 
 while running:
