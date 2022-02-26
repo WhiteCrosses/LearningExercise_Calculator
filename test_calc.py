@@ -5,8 +5,18 @@ import Calculator_Excercise as cp
 class TestCalculator(unittest.TestCase):
 
     def test_calc(self):
-        result = cp.calc(0, '2+2')
-        self.assertEqual(result, 4)
+        result = cp.calc(0, '3+2')
+        self.assertEqual(result, 5)
+
+        result = cp.calc(0, '3/0')
+        self.assertEqual(result, 'invalid_operation')
+
+        result = cp.calc(3, '+2*4')
+        self.assertEqual(result, 11)
+
+    def test_filter(self):
+        result = cp.filter(0, '7h83f4+923-9f3')
+        self.assertEqual(result, '7834+923-93')
 
     def test_response(self):
         result = cp.response(0, 'quit')
