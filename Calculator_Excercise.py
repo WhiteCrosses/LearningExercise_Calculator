@@ -1,6 +1,5 @@
 import re
 import ast
-from pynput import keyboard
 import time
 import numpy as np
 
@@ -99,7 +98,6 @@ def path_selector():
                 time.sleep(1)
                 help_panel()
 
-
 def UserInput(previous):
     global position_R
     global position_C
@@ -115,6 +113,54 @@ def UserInput(previous):
         UserIn = input(str(poprzedni))
 
     return UserIn
+
+def filter(previous, UserIn):
+
+    UserIn = re.sub('plus', '+', UserIn)
+    UserIn = re.sub('minus', '-', UserIn)
+    UserIn = re.sub('[a-zA-Z=:" "]', '', UserIn)  # filter symbols, that could be used to harm our computer through eval()
+
+    return (UserIn)
+
+def calc(previous, UserIn):
+    global poprzedni
+
+    if previous == 0:
+        poprzedni = (myeval1(UserIn))
+    else:
+        poprzedni = (myeval2(UserIn, previous))
+
+    return(poprzedni)
+
+def response(previous, UserIn):
+    global running
+
+    if UserIn == 'quit' or UserIn == 'Quit' or UserIn == 'QUIT':
+        running = False
+
+    elif UserIn == 'Iba':
+        ASCII_iba()
+
+    elif UserIn == 'Dupa' or UserIn == 'dupa':
+        ASCII_dupa()
+
+    elif UserIn == '!help':
+        help_panel()
+
+    else:
+        filtered = filter(previous, UserIn)
+        calc(previous, filtered)
+
+    return running
+
+def main():
+    global running
+    global previous
+    global position_R
+    global position_C
+
+    response(previous, UserInput(previous))
+    previous = poprzedni
 
 def ASCII_dupa():                    #ASCII art dupy
 
@@ -155,53 +201,7 @@ def ASCII_iba():                       #ASCII art Iby
           "                         ; `.        ,::::::: \n"
           "                          ;  ``::.    :::::::")
 
-def filter(previous, UserIn):
-
-    UserIn = re.sub('plus', '+', UserIn)
-    UserIn = re.sub('minus', '-', UserIn)
-    UserIn = re.sub('[a-zA-Z=:" "]', '', UserIn)  # filter symbols, that could be used to harm our computer through eval()
-
-    calc(previous, UserIn)
-
-def calc(previous, UserIn):
-    global poprzedni
-
-    if previous == 0:
-        poprzedni = (myeval1(UserIn))
-    else:
-        poprzedni = (myeval2(UserIn, previous))
-
-    return(poprzedni)
-
-def response(previous, UserIn):
-    global running
-
-    if UserIn == 'quit' or UserIn == 'Quit' or UserIn == 'QUIT':
-        running = False
-
-    elif UserIn == 'Iba':
-        ASCII_iba()
-
-    elif UserIn == 'Dupa' or UserIn == 'dupa':
-        ASCII_dupa()
-
-    elif UserIn == '!help':
-        help_panel()
-
-    else:
-        filter(previous, UserIn)
-
-    return running
-
-def main():
-    global running
-    global previous
-    global position_R
-    global position_C
-
-    response(previous, UserInput(previous))
-    previous = poprzedni
-
 if __name__ == "__main__":
     while running:
         main()
+
