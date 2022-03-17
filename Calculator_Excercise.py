@@ -1,10 +1,7 @@
 import re
 import ast
-from pynput import keyboard
 import time
 import numpy as np
-
-print("Kąkuter")
 
 previous = 0
 UserIn = 0
@@ -12,6 +9,7 @@ position_R = 0                          #position in array - Rows
 position_C = 0                          #position in array - Collumns
 
 running = True
+poprzedni = 0
 
 #dictionary
 #messy naming of paths caused by many changes in the way I attempted to adress these strings in further parts of code
@@ -39,35 +37,34 @@ def zero_error():
 def myeval1(s):
     try:
         return eval(s)
-    except SyntaxError:
-        return 0
     except ZeroDivisionError:
         zero_error()
-        return 0
+        return 'invalid_operation'
 
 def myeval2(w, p):
     try:
         return eval(str(p) + w)
-    except SyntaxError:
-        return 0
     except ZeroDivisionError:
         zero_error()
-        return 0
+        return 'invalid_operation'
 
 def help_panel():
     global position_C
     global position_R
+    global previous
+
+    previous = 0
 
     print("\n**************************************************************")
     print(array[position_R][position_C])
     print("**************************************************************")
 
     if position_R == 2:
-        kalkulacje()
+        return
     elif position_R == 1 and position_C == 1:
-        kalkulacje()
+        return
     elif position_R == 1 and position_C == 2:
-        kalkulacje()
+        return
 
     path_selector()
 
@@ -101,11 +98,11 @@ def path_selector():
                 time.sleep(1)
                 help_panel()
 
-def kalkulacje():
-    global running
-    global previous
+def UserInput(previous):
     global position_R
     global position_C
+    global UserIn
+    global poprzedni
 
     position_C = 0
     position_R = 0
@@ -113,64 +110,98 @@ def kalkulacje():
     if previous == 0:
         UserIn = input("Type your calculations [type !help to access help panel, or type quit, to close script]")
     else:
-        UserIn = input(str(previous))
+        UserIn = input(str(poprzedni))
 
-    #Input reaction
+    return UserIn
 
-    if UserIn == 'quit':
+def filter(previous, UserIn):
+
+    UserIn = re.sub('plus', '+', UserIn)
+    UserIn = re.sub('minus', '-', UserIn)
+    UserIn = re.sub('[a-zA-Z=:" "]', '', UserIn)  # filter symbols, that could be used to harm our computer through eval()
+
+    return (UserIn)
+
+def calc(previous, UserIn):
+    global poprzedni
+
+    if previous == 0:
+        poprzedni = (myeval1(UserIn))
+    else:
+        poprzedni = (myeval2(UserIn, previous))
+
+    return(poprzedni)
+
+def response(previous, UserIn):
+    global running
+
+    if UserIn == 'quit' or UserIn == 'Quit' or UserIn == 'QUIT':
         running = False
 
     elif UserIn == 'Iba':
-        print("                     , \n"
-"                ,.  | \ \n"
-"               |: \ ; :\ \n"
-"               :' ;\| ::\ \n"
-"                \ : | `::\ \n"
-"                _)  |   `:`.\n" 
-"              ,' , `.    ;: ;\n" 
-"            ,' ;:  ; '  ,:: |_ \n"
-"           /,   ` .    ;::: |:`-.__ \n"
-"        _,' _o\  ,::.`:' ;  ;   . ' \n"
-"    _,-'           `:.          ;""\, \n"
-" ,-'                     ,:         `-;, \n"
-" \,                       ;:           ;--._ \n"
-"  `.______,-,----._     ,' ;:        ,/ ,  ,` \n"
-"         / /,-';'  \     ; `:      ,'/,::.::: \n"
-"       ,',;-'-'_,--;    ;   :.   ,',',;:::::: \n"
-"      ( /___,-'     `.     ;::,,'o/  ,::::::: \n"
-"       `'             )    ;:,'o /  ; -   -:: \n"
-"                      \__ _,'o ,'         ,:: \n"
-"                         ) `--'       ,..:::: \n"
-"                         ; `.        ,::::::: \n"
-"                          ;  ``::.    :::::::")
+        ASCII_iba()
 
     elif UserIn == 'Dupa' or UserIn == 'dupa':
-        print("⠄⠄⠸⣿⣿⢣⢶⣟⣿⣖⣿⣷⣻⣮⡿⣽⣿⣻⣖⣶⣤⣭⡉⠄⠄⠄⠄⠄\n"
-              "⠄⠄⠄⢹⠣⣛⣣⣭⣭⣭⣁⡛⠻⢽⣿⣿⣿⣿⢻⣿⣿⣿⣽⡧⡄⠄⠄⠄\n"
-              "⠄⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣶⣌⡛⢿⣽⢘⣿⣷⣿⡻⠏⣛⣀⠄⠄\n"
-              "⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠙⡅⣿⠚⣡⣴⣿⣿⣿⡆⠄\n"
-              "⠄⠄⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠄⣱⣾⣿⣿⣿⣿⣿⣿⠄\n"
-              "⠄⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⠄\n"
-              "⠄⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠣⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄\n"
-              "⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠑⣿⣮⣝⣛⠿⠿⣿⣿⣿⣿⠄\n"
-              "⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠄\n"
-              "⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⠄⠄⢹⣿⣿⣿⣿⣿⣿⣿⣿⠁⠄\n"
-              "⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠄⠄⠄⠄⠄⠸⣿⣿⣿⣿⣿⡿⢟⣣⣀")
+        ASCII_dupa()
 
     elif UserIn == '!help':
         help_panel()
 
     else:
-        UserIn = re.sub('plus', '+', UserIn)
-        UserIn = re.sub('minus', '-', UserIn)
-        UserIn = re.sub('[a-zA-Z:" "]', '', UserIn)             #filter symbols, that could be used to harm our computer through eval()
+        filtered = filter(previous, UserIn)
+        calc(previous, filtered)
 
-        #calculations
-        if previous == 0:
-            previous = (myeval1(UserIn))
-        else:
-            previous = (myeval2(UserIn, previous))
+    return running
 
-while running:
-    kalkulacje()
+def main():
+    global running
+    global previous
+    global position_R
+    global position_C
+
+    response(previous, UserInput(previous))
+    previous = poprzedni
+
+def ASCII_dupa():                    #ASCII art dupy
+
+    print("⠄⠄⠸⣿⣿⢣⢶⣟⣿⣖⣿⣷⣻⣮⡿⣽⣿⣻⣖⣶⣤⣭⡉⠄⠄⠄⠄⠄\n"
+          "⠄⠄⠄⢹⠣⣛⣣⣭⣭⣭⣁⡛⠻⢽⣿⣿⣿⣿⢻⣿⣿⣿⣽⡧⡄⠄⠄⠄\n"
+          "⠄⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣶⣌⡛⢿⣽⢘⣿⣷⣿⡻⠏⣛⣀⠄⠄\n"
+          "⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠙⡅⣿⠚⣡⣴⣿⣿⣿⡆⠄\n"
+          "⠄⠄⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠄⣱⣾⣿⣿⣿⣿⣿⣿⠄\n"
+          "⠄⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⠄\n"
+          "⠄⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠣⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄\n"
+          "⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠑⣿⣮⣝⣛⠿⠿⣿⣿⣿⣿⠄\n"
+          "⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠄\n"
+          "⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⠄⠄⢹⣿⣿⣿⣿⣿⣿⣿⣿⠁⠄\n"
+          "⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠄⠄⠄⠄⠄⠸⣿⣿⣿⣿⣿⡿⢟⣣⣀")
+
+def ASCII_iba():                       #ASCII art Iby
+
+    print("                     , \n"
+          "                ,.  | \ \n"
+          "               |: \ ; :\ \n"
+          "               :' ;\| ::\ \n"
+          "                \ : | `::\ \n"
+          "                _)  |   `:`.\n"
+          "              ,' , `.    ;: ;\n"
+          "            ,' ;:  ; '  ,:: |_ \n"
+          "           /,   ` .    ;::: |:`-.__ \n"
+          "        _,' _o\  ,::.`:' ;  ;   . ' \n"
+          "    _,-'           `:.          ;""\, \n"
+          " ,-'                     ,:         `-;, \n"
+          " \,                       ;:           ;--._ \n"
+          "  `.______,-,----._     ,' ;:        ,/ ,  ,` \n"
+          "         / /,-';'  \     ; `:      ,'/,::.::: \n"
+          "       ,',;-'-'_,--;    ;   :.   ,',',;:::::: \n"
+          "      ( /___,-'     `.     ;::,,'o/  ,::::::: \n"
+          "       `'             )    ;:,'o /  ; -   -:: \n"
+          "                      \__ _,'o ,'         ,:: \n"
+          "                         ) `--'       ,..:::: \n"
+          "                         ; `.        ,::::::: \n"
+          "                          ;  ``::.    :::::::")
+
+if __name__ == "__main__":
+    while running:
+        main()
 
